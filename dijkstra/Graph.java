@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 
 /**
@@ -29,7 +30,10 @@ public class Graph {
 
     /* Resets traversal helper fields of every Vertex in vertices. */
     private void clean() {
-        for (Vertex vertex : vertices) vertex.setVisited(false);
+        for (Vertex vertex : vertices) {
+            vertex.setVisited(false);
+            vertex.setBestDistance(Integer.MAX_VALUE);
+        }
     }
 
     /**
@@ -66,54 +70,73 @@ public class Graph {
 
     /**
      * Find shortest word ladder from startWord to endWord.
+     * Implemented using Dijkstra's algorithm.
      *
      * @param startWord of the word ladder to be found.
      * @param endWord   of the word ladder to be found.
-     * @return shortest word ladder between startWord and endWord if possible, or null if not possible.
+     * @return Shortest word ladder between startWord and endWord if possible, or null if not possible.
+     * Returned ArrayList begins with minimum path length.
      */
     public ArrayList<String> findWordLadder(String startWord, String endWord) {
-        // find vertex corresponding to startWord
+        // find start vertex
         Vertex start = breadthFirstSearch(startWord);
+        if (start.getAdjList().isEmpty()) return null; // start vertex has no adjacent vertices
         this.clean();
+        start.setBestDistance(0);
+        start.setPredecessor(-1);
 
-        // find shortest word ladder using breadth-first search
-        LinkedList<Vertex> queue = new LinkedList<>();
-        start.setVisited(true);
-        start.setPredecessor(start.getIndex());
-        queue.addLast(start);
+        // initialise list of unvisited vertices
+        ArrayList<Vertex> unvisited = new ArrayList<>();
+        for (Vertex v : vertices) {
+            if (!v.equals(start)) unvisited.add(v);
+        }
+
+        // set initial best distances for vertices adjacent to starting vertex
+        for (AdjListNode node : start.getAdjList()) {
+            Vertex adjVertex = vertices[node.getVertexNumber()];
+            adjVertex.setBestDistance(node.getWeight());
+            adjVertex.setPredecessor(start.getIndex());
+        }
+
+        // main traversal loop
+        Vertex cursor;
         Vertex end = null;
+        while (!unvisited.isEmpty()) {
+            // get unvisited vertex with best distance
+            cursor = Collections.min(unvisited);
+            if (cursor.getBestDistance() == Integer.MAX_VALUE) return null; // path impossible; no more reachable vertices
 
-        while (!queue.isEmpty() && end == null) {
-            Vertex cursor = queue.removeFirst();
-            for (AdjListNode adjacentNode : cursor.getAdjList()) {
-                Vertex adjacent = vertices[adjacentNode.getVertexNumber()];
-                // else, continue search
-                if (!adjacent.getVisited()) {
-                    adjacent.setPredecessor(cursor.getIndex());
-                    // check if endWord is found
-                    if (adjacent.getWord().equals(endWord)) {
-                        end = adjacent;
-                        break;
-                    }
-                    adjacent.setVisited(true);
-                    queue.addLast(adjacent);
+            // check if endWord is found
+            if (cursor.getWord().equals(endWord)) {
+                end = cursor;
+                break;
+            }
+
+            // move cursor vertex from unvisited to visited
+            unvisited.remove(cursor);
+
+            for (AdjListNode node : cursor.getAdjList()) {
+                Vertex adjVertex = vertices[node.getVertexNumber()];
+                int distanceThroughCursor = cursor.getBestDistance() + node.getWeight();
+                if (distanceThroughCursor < adjVertex.getBestDistance()) {
+                    adjVertex.setBestDistance(distanceThroughCursor);
+                    adjVertex.setPredecessor(cursor.getIndex());
                 }
             }
         }
 
-        // word ladder is impossible
-        if (end == null) {
-            return null;
-        }
+        if (end == null) return null; // word ladder is impossible
 
         // construct and return word ladder
         ArrayList<String> wordLadder = new ArrayList<>();
-        Vertex cursor = end;
+        cursor = end;
         wordLadder.add(cursor.getWord());
-        while (cursor.getPredecessor() != cursor.getIndex()) { // while predecessor exists
+        while (cursor.getPredecessor() != -1) { // while predecessor exists
             cursor = vertices[cursor.getPredecessor()];
             wordLadder.add(0, cursor.getWord());
         }
+        wordLadder.add(0, Integer.toString(end.getBestDistance()));
         return wordLadder;
     }
+
 }

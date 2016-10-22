@@ -10,7 +10,7 @@ public class AdjListNode {
 
     public AdjListNode(int n, int weight) {
         vertexNumber = n;
-        weight = weight;
+        this.weight = weight;
     }
 
     public int getVertexNumber() {

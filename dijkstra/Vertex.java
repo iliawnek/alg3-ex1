@@ -4,7 +4,7 @@ import java.util.LinkedList;
 /**
  * class to represent a vertex in a graph
  */
-class Vertex {
+class Vertex implements Comparable<Vertex> {
 
     private LinkedList<AdjListNode> adjList; // the adjacency list of the vertex
     private int index; // the index of the vertex
@@ -12,6 +12,7 @@ class Vertex {
     private String word; // word represented by the vertex
     private boolean visited; // whether vertex has been visited in a traversal
     private int predecessor; // index of predecessor vertex in a traversal
+    private int bestDistance; // best distance from starting vertex in Dijkstra's algorithm
 
     /**
      * creates a new instance of Vertex
@@ -67,8 +68,16 @@ class Vertex {
         predecessor = n;
     }
 
-    void addToAdjList(int n) {
-        adjList.addLast(new AdjListNode(n));
+    public int getBestDistance() {
+        return bestDistance;
+    }
+
+    public void setBestDistance(int bestDistance) {
+        this.bestDistance = bestDistance;
+    }
+
+    void addToAdjList(int n, int weight) {
+        adjList.addLast(new AdjListNode(n, weight));
     }
 
     int vertexDegree() {
@@ -77,21 +86,22 @@ class Vertex {
 
     /**
      * @param v vertex to which this vertex is compared
-     * @return true if this vertex and vertex v differ by only one character, false otherwise
+     * @return numerical difference between single different character of this word and vertex v's word,
+     * return -1 if words differ by more or less than 1 character
      */
-    boolean oneLetterDifference(Vertex v) {
+    int letterDifference(Vertex v) {
         String thisWord = this.word;
         String thatWord = v.getWord();
-        boolean oneDifferenceFound = false;
+        int differentCharacter = -1;
 
         for (int i = 0; i < thisWord.length(); i++) {
             if (thisWord.charAt(i) != thatWord.charAt(i)) {
-                if (oneDifferenceFound) return false; // two differences found
-                oneDifferenceFound = true;
+                if (differentCharacter != -1) return -1; // two differences found
+                differentCharacter = i;
             };
         }
 
-        return oneDifferenceFound;
+        return Math.abs(thisWord.charAt(differentCharacter) - thatWord.charAt(differentCharacter));
     }
 
     @Override
@@ -99,4 +109,18 @@ class Vertex {
         return word;
     }
 
+    /**
+     * @param obj to compare this vertex against
+     * @return true if index are the same in each vertex
+     * (not best implementation, but is appropriate enough for this scenario)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Vertex && index == ((Vertex) obj).getIndex();
+    }
+
+    @Override
+    public int compareTo(Vertex that) {
+        return this.bestDistance - that.getBestDistance();
+    }
 }

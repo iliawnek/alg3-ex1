@@ -44,9 +44,10 @@ public class Main {
             outer = graph.getVertex(outerIndex);
             for (int innerIndex = outerIndex + 1; innerIndex < inputSize; innerIndex++) {
                 inner = graph.getVertex(innerIndex);
-                if (outer.oneLetterDifference(inner)) {
-                    outer.addToAdjList(innerIndex);
-                    inner.addToAdjList(outerIndex);
+                int difference = outer.letterDifference(inner);
+                if (difference != -1) {
+                    outer.addToAdjList(innerIndex, difference);
+                    inner.addToAdjList(outerIndex, difference);
                 }
             }
         }
@@ -56,7 +57,6 @@ public class Main {
         if (wordLadder == null) {
             System.out.format("Word ladder from %s to %s does not exist.", startWord, endWord);
         } else {
-            System.out.println(wordLadder.size() - 1);
             for (String word : wordLadder) System.out.println(word);
         }
 
