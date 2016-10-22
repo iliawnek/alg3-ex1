@@ -4,17 +4,14 @@ import java.util.LinkedList;
 /**
  * class to represent a vertex in a graph
  */
-public class Vertex {
+class Vertex {
 
     private LinkedList<AdjListNode> adjList; // the adjacency list of the vertex
     private int index; // the index of the vertex
 
-    // possibly other fields, for example representing data
-    // stored at the node, whether the vertex has been visited
-    // in a traversal, its predecessor in such a traversal, etc.
-
-    boolean visited; // whether vertex has been visited in a traversal
-    int predecessor; // index of predecessor vertex in a traversal
+    private String word; // word represented by the vertex
+    private boolean visited; // whether vertex has been visited in a traversal
+    private int predecessor; // index of predecessor vertex in a traversal
 
     /**
      * creates a new instance of Vertex
@@ -34,39 +31,68 @@ public class Vertex {
         visited = v.getVisited();
     }
 
-    public LinkedList<AdjListNode> getAdjList() {
+    LinkedList<AdjListNode> getAdjList() {
         return adjList;
     }
 
-    public int getIndex() {
+    int getIndex() {
         return index;
     }
 
-    public void setIndex(int n) {
+    void setIndex(int n) {
         index = n;
     }
 
-    public boolean getVisited() {
+    String getWord() {
+        return word;
+    }
+
+    void setWord(String word) {
+        this.word = word;
+    }
+
+    boolean getVisited() {
         return visited;
     }
 
-    public void setVisited(boolean b) {
+    void setVisited(boolean b) {
         visited = b;
     }
 
-    public int getPredecessor() {
+    int getPredecessor() {
         return predecessor;
     }
 
-    public void setPredecessor(int n) {
+    void setPredecessor(int n) {
         predecessor = n;
     }
 
-    public void addToAdjList(int n) {
+    void addToAdjList(int n) {
         adjList.addLast(new AdjListNode(n));
     }
 
-    public int vertexDegree() {
+    int vertexDegree() {
         return adjList.size();
     }
+
+    boolean oneLetterDifference(Vertex v) {
+        String thisWord = this.word;
+        String thatWord = v.getWord();
+        boolean oneDifferenceFound = false;
+
+        for (int i = 0; i < thisWord.length(); i++) {
+            if (thisWord.charAt(i) != thatWord.charAt(i)) {
+                if (oneDifferenceFound) return false; // two differences found
+                oneDifferenceFound = true;
+            };
+        }
+
+        return oneDifferenceFound;
+    }
+
+    @Override
+    public String toString() {
+        return word;
+    }
+
 }
