@@ -34,6 +34,7 @@ public class Graph {
 
     /**
      * Find vertex in graph which represents the given word.
+     * Implemented using breadth-first search.
      *
      * @param word to be searched for.
      * @return Vertex which represents word, or null if Vertex not found.
@@ -79,7 +80,7 @@ public class Graph {
         // find shortest word ladder using breadth-first search
         LinkedList<Vertex> queue = new LinkedList<>();
         start.setVisited(true);
-        start.setPredecessor(start.getIndex());
+        start.setPredecessor(-1);
         queue.addLast(start);
         Vertex end = null;
 
@@ -102,15 +103,13 @@ public class Graph {
         }
 
         // word ladder is impossible
-        if (end == null) {
-            return null;
-        }
+        if (end == null) return null;
 
         // construct and return word ladder
         ArrayList<String> wordLadder = new ArrayList<>();
         Vertex cursor = end;
         wordLadder.add(cursor.getWord());
-        while (cursor.getPredecessor() != cursor.getIndex()) { // while predecessor exists
+        while (cursor.getPredecessor() != -1) { // while predecessor exists
             cursor = vertices[cursor.getPredecessor()];
             wordLadder.add(0, cursor.getWord());
         }
