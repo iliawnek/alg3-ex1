@@ -75,6 +75,10 @@ class Vertex {
         return adjList.size();
     }
 
+    /**
+     * @param v vertex to which this vertex is compared
+     * @return true if this vertex and vertex v differ by only one character, false otherwise
+     */
     boolean oneLetterDifference(Vertex v) {
         String thisWord = this.word;
         String thatWord = v.getWord();

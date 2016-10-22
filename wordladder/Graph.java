@@ -27,7 +27,7 @@ public class Graph {
         return vertices[i];
     }
 
-    /* Resets all traversal helper fields of every Vertex in vertices. */
+    /* Resets traversal helper fields of every Vertex in vertices. */
     private void clean() {
         for (Vertex vertex : vertices) vertex.setVisited(false);
     }
@@ -65,7 +65,7 @@ public class Graph {
     }
 
     /**
-     * Find word ladder from startWord to endWord.
+     * Find shortest word ladder from startWord to endWord.
      *
      * @param startWord of the word ladder to be found.
      * @param endWord   of the word ladder to be found.
@@ -115,15 +115,5 @@ public class Graph {
             wordLadder.add(0, cursor.getWord());
         }
         return wordLadder;
-    }
-
-    public String adjListToString(Vertex v) {
-        String s = "[";
-        LinkedList<AdjListNode> adjList = v.getAdjList();
-        for (int i = 0; i < adjList.size(); i++) {
-            int n = adjList.get(i).getVertexNumber();
-            if (i != adjList.size() - 1) s += vertices[n] + ", ";
-        }
-        return s;
     }
 }

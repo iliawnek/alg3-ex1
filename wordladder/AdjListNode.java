@@ -6,10 +6,7 @@
 public class AdjListNode {
 
     private int vertexNumber;
-    // could be other fields, for example representing
-    // properties of the edge - weight, capacity, ...
 
-    /* creates a new instance */
     public AdjListNode(int n) {
         vertexNumber = n;
     }
