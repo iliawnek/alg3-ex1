@@ -6,21 +6,20 @@ import java.util.LinkedList;
  */
 public class Graph {
 
-    public Vertex[] vertices; // list of vertices in the graph
-    int numVertices;
+    public ArrayList<Vertex> vertices; // list of vertices in the graph
 
-    public Graph(int n) {
-        vertices = new Vertex[n];
-        numVertices = n;
-        for (int i = 0; i < n; i++) vertices[i] = new Vertex(i);
+    public Graph() {
+        vertices = new ArrayList<>();
     }
 
-    public void setVertex(int n, String word) {
-        vertices[n].setWord(word);
+    public void addVertex(int n, String word) {
+        Vertex v = new Vertex(n);
+        v.setWord(word);
+        vertices.add(n, v);
     }
 
     public Vertex getVertex(int i) {
-        return vertices[i];
+        return vertices.get(i);
     }
 
     /* Resets traversal helper fields of every Vertex in vertices. */
@@ -47,7 +46,7 @@ public class Graph {
                 while (!queue.isEmpty()) {
                     Vertex u = queue.removeFirst();
                     for (AdjListNode adjacentNode : u.getAdjList()) {
-                        Vertex w = vertices[adjacentNode.getVertexNumber()];
+                        Vertex w = vertices.get(adjacentNode.getVertexNumber());
                         if (w.getWord().equals(word)) return w;
                         if (!w.getVisited()) {
                             w.setVisited(true);
@@ -83,7 +82,7 @@ public class Graph {
         while (!queue.isEmpty() && end == null) {
             Vertex cursor = queue.removeFirst();
             for (AdjListNode adjacentNode : cursor.getAdjList()) {
-                Vertex adjacent = vertices[adjacentNode.getVertexNumber()];
+                Vertex adjacent = vertices.get(adjacentNode.getVertexNumber());
                 // else, continue search
                 if (!adjacent.getVisited()) {
                     adjacent.setPredecessor(cursor.getIndex());
@@ -106,7 +105,7 @@ public class Graph {
         Vertex cursor = end;
         wordLadder.add(cursor.getWord());
         while (cursor.getPredecessor() != -1) { // while predecessor exists
-            cursor = vertices[cursor.getPredecessor()];
+            cursor = vertices.get(cursor.getPredecessor());
             wordLadder.add(0, cursor.getWord());
         }
         return wordLadder;

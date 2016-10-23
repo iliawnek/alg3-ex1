@@ -16,26 +16,17 @@ public class Main {
 
         FileReader reader = new FileReader(inputFileName);
         Scanner in = new Scanner(reader);
-
-        // count number of words in input
-        int inputSize = 0;
-        while (in.hasNextLine()) {
-            inputSize++;
-            in.nextLine();
-        }
-        in.close();
-        reader.close();
+        reader = new FileReader(inputFileName);
 
         // add input words to graph
-        reader = new FileReader(inputFileName);
-        in = new Scanner(reader);
-        Graph graph = new Graph(inputSize);
+        Graph graph = new Graph();
         int index = 0;
         while (in.hasNextLine()) {
             String line = in.nextLine();
-            graph.setVertex(index, line);
+            graph.addVertex(index, line);
             index++;
         }
+        int inputSize = index;
 
         // connect vertices
         Vertex inner;
