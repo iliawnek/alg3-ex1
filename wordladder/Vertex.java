@@ -22,15 +22,6 @@ class Vertex {
         visited = false;
     }
 
-    /**
-     * copy constructor
-     */
-    public Vertex(Vertex v) {
-        adjList = v.getAdjList();
-        index = v.getIndex();
-        visited = v.getVisited();
-    }
-
     LinkedList<AdjListNode> getAdjList() {
         return adjList;
     }

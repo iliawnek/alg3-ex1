@@ -19,11 +19,16 @@ public class Main {
         reader = new FileReader(inputFileName);
 
         // add input words to graph
+        Vertex start = null;
+        Vertex end = null;
+        Vertex cursor;
         Graph graph = new Graph();
         int index = 0;
         while (in.hasNextLine()) {
             String line = in.nextLine();
-            graph.addVertex(index, line);
+            cursor = graph.addVertex(index, line);
+            if (line.equals(startWord)) start = cursor;
+            else if (line.equals(endWord)) end = cursor;
             index++;
         }
         int inputSize = index;
@@ -43,7 +48,7 @@ public class Main {
         }
 
         // find word ladder
-        ArrayList<String> wordLadder = graph.findWordLadder(startWord, endWord);
+        ArrayList<String> wordLadder = graph.findWordLadder(start, end);
         if (wordLadder == null) {
             System.out.format("Word ladder from %s to %s does not exist.\n", startWord, endWord);
         } else {

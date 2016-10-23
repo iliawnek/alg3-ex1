@@ -14,70 +14,27 @@ public class Graph {
         vertices = new ArrayList<>();
     }
 
-    public void addVertex(int n, String word) {
+    public Vertex addVertex(int n, String word) {
         Vertex v = new Vertex(n);
         v.setWord(word);
         vertices.add(n, v);
+        return vertices.get(n);
     }
 
     public Vertex getVertex(int i) {
         return vertices.get(i);
     }
 
-    /* Resets traversal helper fields of every Vertex in vertices. */
-    private void clean() {
-        for (Vertex vertex : vertices) {
-            vertex.setVisited(false);
-            vertex.setBestDistance(Integer.MAX_VALUE);
-        }
-    }
-
-    /**
-     * Find vertex in graph which represents the given word.
-     *
-     * @param word to be searched for.
-     * @return Vertex which represents word, or null if Vertex not found.
-     */
-    public Vertex breadthFirstSearch(String word) {
-        this.clean();
-        LinkedList<Vertex> queue = new LinkedList<>();
-        for (Vertex v : vertices) {
-            if (v.getWord().equals(word)) return v;
-            if (!v.getVisited()) {
-                v.setVisited(true);
-                v.setPredecessor(v.getIndex());
-                queue.addLast(v);
-                while (!queue.isEmpty()) {
-                    Vertex u = queue.removeFirst();
-                    for (AdjListNode adjacentNode : u.getAdjList()) {
-                        Vertex w = vertices.get(adjacentNode.getVertexNumber());
-                        if (w.getWord().equals(word)) return w;
-                        if (!w.getVisited()) {
-                            w.setVisited(true);
-                            w.setPredecessor(u.getIndex());
-                            queue.addLast(w);
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     /**
      * Find shortest word ladder from startWord to endWord.
      * Implemented using Dijkstra's algorithm.
      *
-     * @param startWord of the word ladder to be found.
-     * @param endWord   of the word ladder to be found.
-     * @return Shortest word ladder between startWord and endWord if possible, or null if not possible.
-     * Returned ArrayList begins with minimum path length.
+     * @param start vertex to begin ladder from.
+     * @param end   vertex to end ladder at.
+     * @return shortest word ladder between start and end if possible, or null if not possible.
      */
-    public ArrayList<String> findWordLadder(String startWord, String endWord) {
+    public ArrayList<String> findWordLadder(Vertex start, Vertex end) {
         // find start vertex
-        Vertex start = breadthFirstSearch(startWord);
-        if (start.getAdjList().isEmpty()) return null; // start vertex has no adjacent vertices
-        this.clean();
         start.setBestDistance(0);
         start.setPredecessor(-1);
 
@@ -96,15 +53,15 @@ public class Graph {
 
         // main traversal loop
         Vertex cursor;
-        Vertex end = null;
+        boolean endFound = false;
         while (!unvisited.isEmpty()) {
             // get unvisited vertex with best distance
             cursor = unvisited.poll();
             if (cursor.getBestDistance() == Integer.MAX_VALUE) return null; // path impossible; no more reachable vertices
 
             // check if endWord is found
-            if (cursor.getWord().equals(endWord)) {
-                end = cursor;
+            if (cursor.equals(end)) {
+                endFound = true;
                 break;
             }
 
@@ -123,7 +80,7 @@ public class Graph {
             }
         }
 
-        if (end == null) return null; // word ladder is impossible
+        if (!endFound) return null; // word ladder is impossible
 
         // construct and return word ladder
         ArrayList<String> wordLadder = new ArrayList<>();
@@ -133,7 +90,6 @@ public class Graph {
             cursor = vertices.get(cursor.getPredecessor());
             wordLadder.add(0, cursor.getWord());
         }
-        wordLadder.add(0, Integer.toString(end.getBestDistance()));
         return wordLadder;
     }
 

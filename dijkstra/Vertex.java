@@ -10,7 +10,6 @@ class Vertex implements Comparable<Vertex> {
     private int index; // the index of the vertex
 
     private String word; // word represented by the vertex
-    private boolean visited; // whether vertex has been visited in a traversal
     private int predecessor; // index of predecessor vertex in a traversal
     private int bestDistance; // best distance from starting vertex in Dijkstra's algorithm
 
@@ -20,16 +19,7 @@ class Vertex implements Comparable<Vertex> {
     public Vertex(int n) {
         adjList = new LinkedList<>();
         index = n;
-        visited = false;
-    }
-
-    /**
-     * copy constructor
-     */
-    public Vertex(Vertex v) {
-        adjList = v.getAdjList();
-        index = v.getIndex();
-        visited = v.getVisited();
+        bestDistance = Integer.MAX_VALUE;
     }
 
     LinkedList<AdjListNode> getAdjList() {
@@ -46,14 +36,6 @@ class Vertex implements Comparable<Vertex> {
 
     void setWord(String word) {
         this.word = word;
-    }
-
-    boolean getVisited() {
-        return visited;
-    }
-
-    void setVisited(boolean b) {
-        visited = b;
     }
 
     int getPredecessor() {
