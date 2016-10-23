@@ -46,7 +46,7 @@ public class Main {
         // find word ladder
         ArrayList<String> wordLadder = graph.findWordLadder(startWord, endWord);
         if (wordLadder == null) {
-            System.out.format("Word ladder from %s to %s does not exist.", startWord, endWord);
+            System.out.format("Word ladder from %s to %s does not exist.\n", startWord, endWord);
         } else {
             for (String word : wordLadder) System.out.println(word);
         }
@@ -55,7 +55,7 @@ public class Main {
 
         // end timer and print total time
         long endTime = System.currentTimeMillis();
-        System.out.println("\nElapsed time: " + (endTime - startTime) + " milliseconds");
+        System.out.println("Elapsed time: " + (endTime - startTime) + " milliseconds");
     }
 
 }
