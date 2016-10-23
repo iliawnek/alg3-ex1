@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.PriorityQueue;
 
 /**
  * class to represent an undirected graph using adjacency lists
@@ -85,12 +86,6 @@ public class Graph {
         start.setBestDistance(0);
         start.setPredecessor(-1);
 
-        // initialise list of unvisited vertices
-        ArrayList<Vertex> unvisited = new ArrayList<>();
-        for (Vertex v : vertices) {
-            if (!v.equals(start)) unvisited.add(v);
-        }
-
         // set initial best distances for vertices adjacent to starting vertex
         for (AdjListNode node : start.getAdjList()) {
             Vertex adjVertex = vertices[node.getVertexNumber()];
@@ -98,12 +93,18 @@ public class Graph {
             adjVertex.setPredecessor(start.getIndex());
         }
 
+        // initialise list of unvisited vertices
+        PriorityQueue<Vertex> unvisited = new PriorityQueue<>();
+        for (Vertex v : vertices) {
+            if (!v.equals(start)) unvisited.add(v);
+        }
+
         // main traversal loop
         Vertex cursor;
         Vertex end = null;
         while (!unvisited.isEmpty()) {
             // get unvisited vertex with best distance
-            cursor = Collections.min(unvisited);
+            cursor = unvisited.poll();
             if (cursor.getBestDistance() == Integer.MAX_VALUE) return null; // path impossible; no more reachable vertices
 
             // check if endWord is found
@@ -112,15 +113,17 @@ public class Graph {
                 break;
             }
 
-            // move cursor vertex from unvisited to visited
-            unvisited.remove(cursor);
-
             for (AdjListNode node : cursor.getAdjList()) {
                 Vertex adjVertex = vertices[node.getVertexNumber()];
                 int distanceThroughCursor = cursor.getBestDistance() + node.getWeight();
                 if (distanceThroughCursor < adjVertex.getBestDistance()) {
                     adjVertex.setBestDistance(distanceThroughCursor);
                     adjVertex.setPredecessor(cursor.getIndex());
+
+                    // update position of updated vertex on min-heap
+                    unvisited.remove(adjVertex);
+                    unvisited.add(adjVertex);
+
                 }
             }
         }
