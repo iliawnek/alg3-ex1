@@ -13,37 +13,34 @@ Status and Implementation Reports}
 
 \section*{Status report}
 
-Both programs appear to be working as intended. No two consecutive words in the word ladder output have a difference of more or less than one character. In the case of \texttt{wordladder}, the number of words in the ladder is consistent with the length reported. In \texttt{dijkstra}, a manual calculation of letter position differences also agreed with the minimum path distance shown.
+Both programs appear to be working as intended. No two consecutive words in the word ladder output have a difference of more or less than one character. In the case of \texttt{wordladder}, the number of words in the ladder is consistent with the length reported. In \texttt{dijkstra}, a manual calculation of letter position differences also agreed with the minimum path distance shown. Both programs also finish execution in a reasonable amount of time.
 
 \section*{Implementation report}
 
 \begin{itemize}
     \item[(a)]
-    In \texttt{wordladder}, words from the input file are read and added one by one to a \texttt{Graph} object. \texttt{Graph} contains an \texttt{ArrayList} of \texttt{Vertex} objects, and a few methods to interact when those vertices. \texttt{Vertex} represents a single word in the \texttt{Graph}. It contains an \textit{adjacency list} of \texttt{AdjListNode} objects, and a few fields to help with searching through the \texttt{Graph}. \texttt{AdjListNode} simply represents an adjacent vertex using the index of that vertex in the vertices \texttt{ArrayList} of \texttt{Graph}.
+    In \texttt{wordladder}, words from the input file are read and added one by one to a \texttt{Graph} object. \texttt{Graph} contains an \texttt{ArrayList} of \texttt{Vertex} objects, and a few methods to interact with those vertices. \texttt{Vertex} represents a single word in the \texttt{Graph}. It contains an \textit{adjacency list} of \texttt{AdjListNode} objects, and a few fields to help with searching through the \texttt{Graph}. \texttt{AdjListNode} simply represents an adjacent vertex using the index of that vertex in the vertices \texttt{ArrayList} of \texttt{Graph}.
 
-    An \texttt{ArrayList} was chosen to contain the vertices in a \texttt{Graph} to avoid I/O as much as possible, since it takes a long time compared to working within memory. If an array was used, the input would have to be read twice: first to get the number of words in the input in order to create the array, then second to perform the actual reading in of the words.
+    An \texttt{ArrayList} was chosen to contain the vertices in a \texttt{Graph} to handle any size of input. If an array was used, an intermediate buffer data structure would need to store all words since the input size must be known before the array can be created. This would prove inefficient for large inputs.
 
-    Once all words have been added, a nested for loop compares every word in the \texttt{Graph} with another word. The comparison checks whether or not the two words only have a one-letter difference: if they do, then each vertex is added to the other vertex's \textit{adjacency list}. Since the \texttt{Graph} is be undirected, an edge in one direction is also an edge in the opposite direction. This means that only one comparison needs to be made between any two vertices.
+    Once all words have been added, a nested for loop compares every word in the \texttt{Graph} with another word. The comparison checks whether or not the two words only have a one-letter difference: if they do, then each vertex is added to the other vertex's \textit{adjacency list}. Since the \texttt{Graph} is undirected, an edge from A to B is also an edge from B to A. This means that only one comparison needs to be made between any two vertices.
 
-    With the \texttt{Graph} built, the \textit{word ladder} can now be assembled. \textit{Breadth-first search} is used twice in finding the \textit{word ladder} between two words: first to find the vertex associated with the starting word, then second to find the shortest path from that starting vertex to the vertex containing the end word.
+    With the \texttt{Graph} built, the \textit{word ladder} can now be assembled. \textit{Breadth-first search} is used to find the shortest path through the graph from the start word to the end word.
 
-    Both instances of \textit{breadth-first search} are implemented using the standard method of maintaining a \textit{queue} of vertices to visit. For the first search, any unvisited vertices are added to the \textit{queue} initially, whereas the second search requires only the starting word vertex to be within the \textit{queue}.
-    Every adjacent vertex of the next vertex in the \textit{queue} is checked, then added to the end of the \textit{queue} if it is not the target vertex. All \texttt{Vertex} object's traversal helper fields must be reset between searches to avoid conflict between both searches.
+    The \textit{breadth-first search} is implemented using the standard method of maintaining a \textit{queue} of vertices to visit. The start vertex must be placed within the \textit{queue} initially so that the search starts from that vertex. Every adjacent vertex of a dequeued vertex is checked: if it is the end vertex, then the search stops; else it is added to the end of the \textit{queue}, continuing the traversal.
 
     The purpose of the \textit{queue} is to ensure that all vertices which are $n$ distance from the start vertex are visited first before considering vertices which are $n + 1$ distance away. This ensures that the path travelled when the end vertex is found is optimal.
 
-    The choice of \textit{breadth-first} over \textit{depth-first} for the initial search was somewhat arbitrary since both traversals achieve $O(n)$ time complexity. However, since finding the minimum path requires \textit{breadth-first search}, implementation becomes a lot simpler if \textit{breadth-first search} is used in both cases.
-
-    Every time a vertex is enqueued, a reference to the vertex it was visited from is also stored. This allows for the full \textit{word ladder} to constructed by following the trail of references from the end vertex back to the start vertex. Once the full \textit{word ladder} is obtained, it's $length - 1$ (length of \textit{word ladder}, as defined by the specification) is printed, and each word of the ladder is printed line-by-line, in the correct order.
+    Every time a vertex is enqueued, a reference to the vertex it was visited from is also stored. This allows for the full \textit{word ladder} to constructed by following the trail of references from the end vertex back to the start vertex. Once the full \textit{word ladder} is obtained, it's $length - 1$ is printed (length of \textit{word ladder} as defined by the specification), and each word of the ladder is printed line-by-line, in the correct order.
 
     \item[(b)]
     \texttt{dijkstra} is implemented very similarly to \texttt{wordladder}, except for the following differences.
 
-    Since edges must now be weighted, \texttt{AdjListNode} must also contain a weight field, which represents the single character alphabetical position difference between two words in the \texttt{Graph}.
+    Since edges must now be weighted, \texttt{AdjListNode} must also contain a weight field, which represents the single different character position difference between two words in the \texttt{Graph}.
 
     Instead of using \textit{breadth-first search} for finding the optimal path, \textit{Dijkstra's algorithm} must be used since edges are now weighted. The \texttt{Vertex} class must also contain a \textit{best distance} (so far) field to help \textit{Dijkstra's algorithm}. The \textit{best distance} is set for every vertex adjacent to the starting vertex as the weight from the starting vertex. This allows the algorithm to get up and running.
 
-    Unvisited vertices are stored in as a \textit{priority queue} implemented using a \textit{min-heap}. In order to achieve this, the \texttt{Vertex} class must implement the \texttt{Comparable} interface and a compare method must be written so that vertices are compared by their tentative \textit{best distance} values. Since the priority value (\textit{best distance}) changes during the lifetime of the \textit{priority queue}, the updated vertex must be removed from then re-inserted to the \textit{min-heap} in order to position it correctly.
+    Unvisited vertices are stored in as a \textit{priority queue} implemented using a \textit{min-heap}. In order to achieve this, the \texttt{Vertex} class must implement the \texttt{Comparable} interface and a compare method must be written so that vertices can be compared by their tentative \textit{best distance} values. Since the priority value (\textit{best distance}) changes during the lifetime of the \textit{priority queue}, the updated vertex must be removed from then re-inserted to the \textit{min-heap} in order to position it correctly.
 
     The main loop of the algorithm considers every unvisited vertex in the \textit{priority queue}, with vertices with a lower \textit{best distance} having higher priority. If the vertex contains the end word, then the optimal path is found. Else, \textit{edge relaxation} is performed: for every adjacent vertex, if the distance through this vertex to the adjacent vertex is better than the currently stored \textit{best distance}, then replace it.
 
@@ -52,25 +49,27 @@ Both programs appear to be working as intended. No two consecutive words in the 
 
 \section*{Empirical results}
 
+Word ladders are largely the same for both programs, with the exception of black $\rightarrow$ white, where \texttt{dijkstra} took a different path which a lower character position difference total.
+\\\\
 Execution times for both programs were very short. \texttt{wordladder} was generally faster, performing at around 50ms consistently for each test input. \texttt{dijkstra} jumped between 50ms and 70ms. This higher duration typically occurred for longer word ladders.
 \\\\
 \texttt{\textbf{dijkstra}}:
 
-\begin{itemize}
+\begin{enumerate}
     \item \textbf{blare} $\rightarrow$ \textbf{blase} (1).
     \item \textbf{blond} $\rightarrow$ \textbf{blood} (1).
     \item \textbf{allow} $\rightarrow$ \textbf{alloy} (2).
-    \item \textbf{cheat} $\rightarrow$ chert $\rightarrow$ chart $\rightarrow$ charm $\rightarrow$ chasm $\rightarrow$ chase $\rightarrow$ cease $\rightarrow$ lease $\rightarrow$ leave $\rightarrow$ heave $\rightarrow$ helve $\rightarrow$ halve $\rightarrow$ salve $\rightarrow$ solve $\rightarrow$ \textbf{solve} (96).
+    \item \textbf{cheat} $\rightarrow$ chert $\rightarrow$ chart $\rightarrow$ charm $\rightarrow$ chasm $\rightarrow$ chase $\rightarrow$ cease $\rightarrow$ lease $\rightarrow$ leave $\rightarrow$ heave $\rightarrow$ helve $\rightarrow$ halve $\rightarrow$ salve $\rightarrow$ \textbf{solve} (96).
     \item Word ladder \textbf{worry} $\rightarrow$ \textbf{happy} does not exist.
     \item \textbf{print} $\rightarrow$ \textbf{paint} (17).
     \item \textbf{small} $\rightarrow$ shall $\rightarrow$ shale $\rightarrow$ share $\rightarrow$ shard $\rightarrow$ chard $\rightarrow$ charm $\rightarrow$ chasm $\rightarrow$ chase $\rightarrow$ cease $\rightarrow$ tease $\rightarrow$ terse $\rightarrow$ verse $\rightarrow$ verge $\rightarrow$ merge $\rightarrow$ marge $\rightarrow$ \textbf{large} (118).
     \item \textbf{black} $\rightarrow$ slack $\rightarrow$ shack $\rightarrow$ shank $\rightarrow$ thank $\rightarrow$ thane $\rightarrow$ thine $\rightarrow$ whine $\rightarrow$ \textbf{white} (56).
     \item Word ladder \textbf{greed} $\rightarrow$ \textbf{money} does not exist.
-\end{itemize}
+\end{enumerate}
 \\\\
 \texttt{\textbf{wordladder}}:
 
-\begin{itemize}
+\begin{enumerate}
     \item \textbf{print} $\rightarrow$ \textbf{paint} (1).
     \item \textbf{forty} $\rightarrow$ forth $\rightarrow$ firth $\rightarrow$ fifth $\rightarrow$ \textbf{fifty} (4).
     \item \textbf{cheat} $\rightarrow$ chert $\rightarrow$ chart $\rightarrow$ charm $\rightarrow$ chasm $\rightarrow$ chase $\rightarrow$ cease $\rightarrow$ lease $\rightarrow$ leave $\rightarrow$ heave $\rightarrow$ helve $\rightarrow$ halve $\rightarrow$ salve $\rightarrow$ \textbf{solve} (13).
@@ -78,7 +77,7 @@ Execution times for both programs were very short. \texttt{wordladder} was gener
     \item \textbf{smile} $\rightarrow$ smite $\rightarrow$ spite $\rightarrow$ splice $\rightarrow$ slice $\rightarrow$ slick $\rightarrow$ click $\rightarrow$ clock $\rightarrow$ crock $\rightarrow$ crook $\rightarrow$ croon $\rightarrow$ crown $\rightarrow$ \textbf{frown} (12).
     \item \textbf{small} $\rightarrow$ shall $\rightarrow$ shale $\rightarrow$ share $\rightarrow$ shard $\rightarrow$ chard $\rightarrow$ charm $\rightarrow$ chasm $\rightarrow$ chase $\rightarrow$ cease $\rightarrow$ tease $\rightarrow$ terse $\rightarrow$ verse $\rightarrow$ verge $\rightarrow$ merge $\rightarrow$ marge $\rightarrow$ \textbf{large} (16).
     \item \textbf{black} $\rightarrow$ blank $\rightarrow$ blink $\rightarrow$ brink $\rightarrow$ brine $\rightarrow$ trine $\rightarrow$ thine $\rightarrow$ whine $\rightarrow$ \textbf{white} (8).
-\end{itemize}
+\end{enumerate}
 
 \begin{table}[!htb]
     \begin{minipage}{.5\linewidth}
@@ -98,7 +97,7 @@ Execution times for both programs were very short. \texttt{wordladder} was gener
     \end{minipage}%
     \begin{minipage}{.5\linewidth}
         \centering
-        \caption{Execution times for \texttt{dijkstra}.\\}
+        \caption{Execution times for \texttt{dijkstra}.}
         \begin{tabular}{|l|l|}
             \hline
             \textbf{Input}            & \textbf{Time} \\ \hline
