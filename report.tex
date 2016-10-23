@@ -1,9 +1,10 @@
 \documentclass{article}
+\usepackage[margin=0.8in]{geometry}
 
-\title{Algorithmics 3 Assessed Exercise\\ \vspace{4mm} 
+\title{Algorithmics 3 Assessed Exercise\\ \vspace{4mm}
 Status and Implementation Reports}
 
-\author{\bf Insert your name\\ \bf and matriculation number here}
+\author{\bf Ken Li\\ \bf 2131620}
 
 \date{\today}
 
@@ -12,21 +13,87 @@ Status and Implementation Reports}
 
 \section*{Status report}
 
-In the event of a non-working program, this section should state clearly what happens when the program is compiled (in the case of compile-time errors) or run (in the case of run-time errors).  
-
-Otherwise, this section should state whether you believe that your programs are working correctly. If so, indicate the basis for your belief, if not comment on what you think might be the problem.
+Both programs appear to be working as intended. No two consecutive words in the word ladder output have a difference of more or less than one character. In the case of \texttt{wordladder}, the number of words in the ladder is consistent with the length reported. In \texttt{dijkstra}, a manual calculation of letter position differences also agreed with the minimum path distance shown.
 
 \section*{Implementation report}
 
 \begin{itemize}
-\item[(a)] 
-Here, explain how you implemented the Dijkstra's algorithm to compute and return the required information. Include a discussion of any steps that you took to improve efficiency.
-\item[(b)]
-Here, explain how you implemented the Backtrack search to compute and return the required information. Include a discussion of any steps that you took to improve efficiency.
+    \item[(a)]
+    The initial search for the vertex containing the starting word is conducted using the breadth-first search technique. The choice of this traversal algorithm over depth-first traversal was arbitrary since both traversals achieve O(n) time complexity. The graph requires to be "cleaned" after the search, since both the breadth-first search and Dijkstra's algorithm utilise a predecessor reference on the Vertex class. This is also of complexity O(n), since the process is essentially just a iteration through every vertex.
+
+    Unvisited vertices are stored in as a priority queue implemented using a min-heap. This achieves O(log(n)) time complexity for insertions and deletions. In order to achieve this, the Vertex class must implement the Comparable interface, and a compare method must be written so that vertices are compared by their tentative best distance values. However, since the priority value (best distance) changes during the lifetime of the priority queue, the updated vertex must be removed from then re-inserted to the min-heap to position it correctly. As a result, the entire updating process has O(n) time complexity.
+
+    The main loop of the algorithm can potentially consider every unvisited vertex in the priority queue, so it loops n - 1 times in the worst case. Within the loop, the edge relaxation component of the algorithm is handled within another loop which iterates through the adjacency list of the selected vertex. So in the worst case, the main loop iterates through every edge in the graph, which would be proportional to the size of the input.
+
+    In order to obtain the word ladder once the end word is found in the graph, predecessor references are stored in every vertex during the search. A vertex's predecessor refers to the adjacent vertex from which the optimal path (best distance from starting vertex) was formed. So to find the word ladder, simply follow the trail from the end vertex back to the starting vertex using these references. This of course returns the ladder in reverse order, so that needs to be considered. Finally, the best distance is the distance stored within the end vertex.
+
+    \item[(b)]
+    Here, explain how you implemented the Backtrack search to compute and return the required information. Include a discussion of any steps that you took to improve efficiency.
 \end{itemize}
 
 \section*{Empirical results}
 
-Summarise the running times of your two programs on the data sets provided. If the program fails to terminate in, say, two minutes, simply report non-termination. 
+Execution times for both programs were very short. \texttt{wordladder} was generally faster, performing at around 50ms consistently for each test input. \texttt{dijkstra} however occasionally jumped to around 70ms. This typically occurred for the longer of the word ladders.
+\\\\
+\texttt{\textbf{dijkstra}}:
+
+\begin{itemize}
+    \item \textbf{blare} $\rightarrow$ \textbf{blase} (1).
+    \item \textbf{blond} $\rightarrow$ \textbf{blood} (1).
+    \item \textbf{allow} $\rightarrow$ \textbf{alloy} (2).
+    \item \textbf{cheat} $\rightarrow$ chert $\rightarrow$ chart $\rightarrow$ charm $\rightarrow$ chasm $\rightarrow$ chase $\rightarrow$ cease $\rightarrow$ lease $\rightarrow$ leave $\rightarrow$ heave $\rightarrow$ helve $\rightarrow$ halve $\rightarrow$ salve $\rightarrow$ solve $\rightarrow$ \textbf{solve} (96).
+    \item Word ladder \textbf{worry} $\rightarrow$ \textbf{happy} does not exist.
+    \item \textbf{print} $\rightarrow$ \textbf{paint} (17).
+    \item \textbf{small} $\rightarrow$ shall $\rightarrow$ shale $\rightarrow$ share $\rightarrow$ shard $\rightarrow$ chard $\rightarrow$ charm $\rightarrow$ chasm $\rightarrow$ chase $\rightarrow$ cease $\rightarrow$ tease $\rightarrow$ terse $\rightarrow$ verse $\rightarrow$ verge $\rightarrow$ merge $\rightarrow$ marge $\rightarrow$ \textbf{large} (118).
+    \item \textbf{black} $\rightarrow$ slack $\rightarrow$ shack $\rightarrow$ shank $\rightarrow$ thank $\rightarrow$ thane $\rightarrow$ thine $\rightarrow$ whine $\rightarrow$ \textbf{white} (56).
+    \item Word ladder \textbf{greed} $\rightarrow$ \textbf{money} does not exist.
+\end{itemize}
+\\\\
+\texttt{\textbf{wordladder}}:
+
+\begin{itemize}
+    \item \textbf{print} $\rightarrow$ \textbf{paint} (1).
+    \item \textbf{forty} $\rightarrow$ forth $\rightarrow$ firth $\rightarrow$ fifth $\rightarrow$ \textbf{fifty} (4).
+    \item \textbf{cheat} $\rightarrow$ chert $\rightarrow$ chart $\rightarrow$ charm $\rightarrow$ chasm $\rightarrow$ chase $\rightarrow$ cease $\rightarrow$ lease $\rightarrow$ leave $\rightarrow$ heave $\rightarrow$ helve $\rightarrow$ halve $\rightarrow$ salve $\rightarrow$ \textbf{solve} (13).
+    \item Word ladder \textbf{worry} $\rightarrow$ \textbf{happy} does not exist.
+    \item \textbf{smile} $\rightarrow$ smite $\rightarrow$ spite $\rightarrow$ splice $\rightarrow$ slice $\rightarrow$ slick $\rightarrow$ click $\rightarrow$ clock $\rightarrow$ crock $\rightarrow$ crook $\rightarrow$ croon $\rightarrow$ crown $\rightarrow$ \textbf{frown} (12).
+    \item \textbf{small} $\rightarrow$ shall $\rightarrow$ shale $\rightarrow$ share $\rightarrow$ shard $\rightarrow$ chard $\rightarrow$ charm $\rightarrow$ chasm $\rightarrow$ chase $\rightarrow$ cease $\rightarrow$ tease $\rightarrow$ terse $\rightarrow$ verse $\rightarrow$ verge $\rightarrow$ merge $\rightarrow$ marge $\rightarrow$ \textbf{large} (16).
+    \item \textbf{black} $\rightarrow$ blank $\rightarrow$ blink $\rightarrow$ brink $\rightarrow$ brine $\rightarrow$ trine $\rightarrow$ thine $\rightarrow$ whine $\rightarrow$ \textbf{white} (8).
+\end{itemize}
+
+\begin{table}[!htb]
+    \begin{minipage}{.5\linewidth}
+        \caption{Execution times for \texttt{wordladder}.}
+        \centering
+        \begin{tabular}{|l|l|}
+            \hline
+            \textbf{Input}            & \textbf{Time} \\ \hline
+            print $\rightarrow$ paint   & 53ms        \\ \hline
+            forty $\rightarrow$ fifty   & 51ms        \\ \hline
+            cheat $\rightarrow$ solve   & 52ms        \\ \hline
+            worry $\rightarrow$ happy   & 53ms        \\ \hline
+            smile $\rightarrow$ frown   & 50ms        \\ \hline
+            small $\rightarrow$ large   & 53ms        \\ \hline
+            black $\rightarrow$ white   & 50ms        \\ \hline
+        \end{tabular}}
+    \end{minipage}%
+    \begin{minipage}{.5\linewidth}
+        \centering
+        \caption{Execution times for \texttt{dijkstra}.\\}
+        \begin{tabular}{|l|l|}
+            \hline
+            \textbf{Input}            & \textbf{Time} \\ \hline
+            blare $\rightarrow$ blase & 51ms          \\ \hline
+            blond $\rightarrow$ blood & 51ms          \\ \hline
+            allow $\rightarrow$ alloy & 54ms          \\ \hline
+            cheat $\rightarrow$ solve & 71ms          \\ \hline
+            worry $\rightarrow$ happy & 57ms          \\ \hline
+            print $\rightarrow$ paint & 55ms          \\ \hline
+            small $\rightarrow$ large & 71ms          \\ \hline
+            black $\rightarrow$ white & 68ms          \\ \hline
+            greed $\rightarrow$ money & 71ms          \\ \hline
+        \end{tabular}
+    \end{minipage}
+\end{table}
 
 \end{document}
