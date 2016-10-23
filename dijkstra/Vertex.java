@@ -40,10 +40,6 @@ class Vertex implements Comparable<Vertex> {
         return index;
     }
 
-    void setIndex(int n) {
-        index = n;
-    }
-
     String getWord() {
         return word;
     }
@@ -78,10 +74,6 @@ class Vertex implements Comparable<Vertex> {
 
     void addToAdjList(int n, int weight) {
         adjList.addLast(new AdjListNode(n, weight));
-    }
-
-    int vertexDegree() {
-        return adjList.size();
     }
 
     /**

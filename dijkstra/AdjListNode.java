@@ -17,15 +17,7 @@ public class AdjListNode {
         return vertexNumber;
     }
 
-    public void setVertexNumber(int n) {
-        vertexNumber = n;
-    }
-
     public int getWeight() {
         return weight;
-    }
-
-    public void setWeight(int weight) {
-        this.weight = weight;
     }
 }

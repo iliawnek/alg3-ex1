@@ -17,10 +17,6 @@ public class Graph {
         for (int i = 0; i < n; i++) vertices[i] = new Vertex(i);
     }
 
-    public int size() {
-        return numVertices;
-    }
-
     public void setVertex(int n, String word) {
         vertices[n].setWord(word);
     }

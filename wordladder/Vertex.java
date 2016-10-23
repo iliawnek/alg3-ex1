@@ -39,10 +39,6 @@ class Vertex {
         return index;
     }
 
-    void setIndex(int n) {
-        index = n;
-    }
-
     String getWord() {
         return word;
     }
@@ -69,10 +65,6 @@ class Vertex {
 
     void addToAdjList(int n) {
         adjList.addLast(new AdjListNode(n));
-    }
-
-    int vertexDegree() {
-        return adjList.size();
     }
 
     /**

@@ -15,8 +15,4 @@ public class AdjListNode {
         return vertexNumber;
     }
 
-    public void setVertexNumber(int n) {
-        vertexNumber = n;
-    }
-
 }
