@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage[margin=0.8in]{geometry}
+\usepackage[margin=1.35in]{geometry}
 
 \title{Algorithmics 3 Assessed Exercise\\ \vspace{4mm}
 Status and Implementation Reports}
@@ -19,21 +19,40 @@ Both programs appear to be working as intended. No two consecutive words in the 
 
 \begin{itemize}
     \item[(a)]
-    The initial search for the vertex containing the starting word is conducted using the breadth-first search technique. The choice of this traversal algorithm over depth-first traversal was arbitrary since both traversals achieve O(n) time complexity. The graph requires to be "cleaned" after the search, since both the breadth-first search and Dijkstra's algorithm utilise a predecessor reference on the Vertex class. This is also of complexity O(n), since the process is essentially just a iteration through every vertex.
+    In \texttt{wordladder}, words from the input file are read and added one by one to a \texttt{Graph} object. \texttt{Graph} contains an \texttt{ArrayList} of \texttt{Vertex} objects, and a few methods to interact when those vertices. \texttt{Vertex} represents a single word in the \texttt{Graph}. It contains an \textit{adjacency list} of \texttt{AdjListNode} objects, and a few fields to help with searching through the \texttt{Graph}. \texttt{AdjListNode} simply represents an adjacent vertex using the index of that vertex in the vertices \texttt{ArrayList} of \texttt{Graph}.
 
-    Unvisited vertices are stored in as a priority queue implemented using a min-heap. This achieves O(log(n)) time complexity for insertions and deletions. In order to achieve this, the Vertex class must implement the Comparable interface, and a compare method must be written so that vertices are compared by their tentative best distance values. However, since the priority value (best distance) changes during the lifetime of the priority queue, the updated vertex must be removed from then re-inserted to the min-heap to position it correctly. As a result, the entire updating process has O(n) time complexity.
+    An \texttt{ArrayList} was chosen to contain the vertices in a \texttt{Graph} to avoid I/O as much as possible, since it takes a long time compared to working within memory. If an array was used, the input would have to be read twice: first to get the number of words in the input in order to create the array, then second to perform the actual reading in of the words.
 
-    The main loop of the algorithm can potentially consider every unvisited vertex in the priority queue, so it loops n - 1 times in the worst case. Within the loop, the edge relaxation component of the algorithm is handled within another loop which iterates through the adjacency list of the selected vertex. So in the worst case, the main loop iterates through every edge in the graph, which would be proportional to the size of the input.
+    Once all words have been added, a nested for loop compares every word in the \texttt{Graph} with another word. The comparison checks whether or not the two words only have a one-letter difference: if they do, then each vertex is added to the other vertex's \textit{adjacency list}. Since the \texttt{Graph} is be undirected, an edge in one direction is also an edge in the opposite direction. This means that only one comparison needs to be made between any two vertices.
 
-    In order to obtain the word ladder once the end word is found in the graph, predecessor references are stored in every vertex during the search. A vertex's predecessor refers to the adjacent vertex from which the optimal path (best distance from starting vertex) was formed. So to find the word ladder, simply follow the trail from the end vertex back to the starting vertex using these references. This of course returns the ladder in reverse order, so that needs to be considered. Finally, the best distance is the distance stored within the end vertex.
+    With the \texttt{Graph} built, the \textit{word ladder} can now be assembled. \textit{Breadth-first search} is used twice in finding the \textit{word ladder} between two words: first to find the vertex associated with the starting word, then second to find the shortest path from that starting vertex to the vertex containing the end word.
+
+    Both instances of \textit{breadth-first search} are implemented using the standard method of maintaining a \textit{queue} of vertices to visit. For the first search, any unvisited vertices are added to the \textit{queue} initially, whereas the second search requires only the starting word vertex to be within the \textit{queue}.
+    Every adjacent vertex of the next vertex in the \textit{queue} is checked, then added to the end of the \textit{queue} if it is not the target vertex. All \texttt{Vertex} object's traversal helper fields must be reset between searches to avoid conflict between both searches.
+
+    The purpose of the \textit{queue} is to ensure that all vertices which are $n$ distance from the start vertex are visited first before considering vertices which are $n + 1$ distance away. This ensures that the path travelled when the end vertex is found is optimal.
+
+    The choice of \textit{breadth-first} over \textit{depth-first} for the initial search was somewhat arbitrary since both traversals achieve $O(n)$ time complexity. However, since finding the minimum path requires \textit{breadth-first search}, implementation becomes a lot simpler if \textit{breadth-first search} is used in both cases.
+
+    Every time a vertex is enqueued, a reference to the vertex it was visited from is also stored. This allows for the full \textit{word ladder} to constructed by following the trail of references from the end vertex back to the start vertex. Once the full \textit{word ladder} is obtained, it's $length - 1$ (length of \textit{word ladder}, as defined by the specification) is printed, and each word of the ladder is printed line-by-line, in the correct order.
 
     \item[(b)]
-    Here, explain how you implemented the Backtrack search to compute and return the required information. Include a discussion of any steps that you took to improve efficiency.
+    \texttt{dijkstra} is implemented very similarly to \texttt{wordladder}, except for the following differences.
+
+    Since edges must now be weighted, \texttt{AdjListNode} must also contain a weight field, which represents the single character alphabetical position difference between two words in the \texttt{Graph}.
+
+    Instead of using \textit{breadth-first search} for finding the optimal path, \textit{Dijkstra's algorithm} must be used since edges are now weighted. The \texttt{Vertex} class must also contain a \textit{best distance} (so far) field to help \textit{Dijkstra's algorithm}. The \textit{best distance} is set for every vertex adjacent to the starting vertex as the weight from the starting vertex. This allows the algorithm to get up and running.
+
+    Unvisited vertices are stored in as a \textit{priority queue} implemented using a \textit{min-heap}. In order to achieve this, the \texttt{Vertex} class must implement the \texttt{Comparable} interface and a compare method must be written so that vertices are compared by their tentative \textit{best distance} values. Since the priority value (\textit{best distance}) changes during the lifetime of the \textit{priority queue}, the updated vertex must be removed from then re-inserted to the \textit{min-heap} in order to position it correctly.
+
+    The main loop of the algorithm considers every unvisited vertex in the \textit{priority queue}, with vertices with a lower \textit{best distance} having higher priority. If the vertex contains the end word, then the optimal path is found. Else, \textit{edge relaxation} is performed: for every adjacent vertex, if the distance through this vertex to the adjacent vertex is better than the currently stored \textit{best distance}, then replace it.
+
+    If the loop finishes without ever finding the end word, then a \textit{word ladder} does not exist between the two words. Else, the \textit{word ladder} is assembled in the same way as \texttt{wordladder}. The minimum path is the \textit{best distance} stored in the end vertex node.
 \end{itemize}
 
 \section*{Empirical results}
 
-Execution times for both programs were very short. \texttt{wordladder} was generally faster, performing at around 50ms consistently for each test input. \texttt{dijkstra} however occasionally jumped to around 70ms. This typically occurred for the longer of the word ladders.
+Execution times for both programs were very short. \texttt{wordladder} was generally faster, performing at around 50ms consistently for each test input. \texttt{dijkstra} jumped between 50ms and 70ms. This higher duration typically occurred for longer word ladders.
 \\\\
 \texttt{\textbf{dijkstra}}:
 
